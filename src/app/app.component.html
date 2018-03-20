@@ -1,226 +1,64 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.6.4/angular-sanitize.min.js"></script>
 <script src="/bower_components/angular-read-more/readmore.min.js"></script>
 <script src="./node_modules/recordrtc/RecordRTC.js"></script>
-<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.9/angular.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.9/angular-animate.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.9/angular-aria.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.9/angular-messages.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.6.4/angular-sanitize.min.js"></script>
-<script src="/bower_components/angular-read-more/readmore.min.js"></script>
+<link href="https://unpkg.com/@angular/material/core/theming/prebuilt/indigo-pink.css" rel="stylesheet">
 
-
-<body ng-app="AppModule">
 <mat-toolbar class="toolbar" >
-  <span>Voice Search Evaluation</span>
+  <span>Fusion Voice Search Demo</span>
 </mat-toolbar>
-
-
 
 <div class="wrapper">
 
 
 
-
-
-
-
-
-
-
-
-
-      <mat-card style="margin-top: 14%">
-
-
-        <div class="voice-searchIcon-container" >
-          <div class="start-recording" style="position: relative; left: -50%;"  [ngStyle]="{ 'background-color': getRecordColour(), 'border-radius' : getRecordBtnRadius() }" (click)="recordPress()"><div class="mc"></div></div>
-        </div>
-
-
-
-
-
-        <div class="main-div" style="padding-top: 9vh">
-          <h2 class="center">Which API Performed Best?</h2>
-        </div>
-
-
-
-        <section layout="row" layout-sm="column" class="center" >
-          <button mat-raised-button color="primary" [disabled]="votingStatus" (click)="voteButtonClicked('A')">API A</button>
-          <button mat-raised-button color="basic"   [disabled]="votingStatus" (click)="voteButtonClicked('Both the Same')">Both the same</button>
-          <button mat-raised-button color="warn"   [disabled]="votingStatus" (click)="voteButtonClicked('B')">API B</button>
-        </section>
-      </mat-card>
-
-
-  <mat-accordion>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          Instructions
-        </mat-panel-title>
-        <mat-panel-description>
-        </mat-panel-description>
-      </mat-expansion-panel-header>
-      <p>The aim of this study is to evaluate two different Speech to Text Pipelines in Fusion, the results from each API will be displayed randomly under either API A & API B.
-        You are being asked to test each Api with a voice query and subsequently vote on which Api performed better.
-        Please test this with around 5 different voice queries.
-      </p>
-      <h2>Step 1 - Starting voice capture</h2>
-      <p>Click the red record button. Your browser should prompt you for permission to record. You can then dictate the query you wish to search for.</p>
-      <h2>Step 2 - Sending voice capture</h2>
-      <p>Click the green stop button, this will send your recording to the API's to be transcribed. The result will then be displayed below.</p>
-      <h2>Step 3 - Voting</h2>
-      <p>You can use the voting buttons to vote for the API which you feel performed better in terms of your original voice query</p>
-
-
-    </mat-expansion-panel>
-  </mat-accordion>
-
-
-
-
-
-
-
-
 <div class="box">
 
-
   <div id="leftcolumn">
+  <div class="search-box">
+    <span class="icon"><i class="fa fa-search"></i></span>
+    <input type="search" id="search" [(ngModel)]="search" (keyup.enter)="onKeyUp(search)  " />
+  </div>
+
     <mat-card style="margin-left: 1vw; margin-top: 9%; width: 43vw; min-height: 40vh; background-color: #f9f9f9;">
-    <h2 style="text-align: center;">A</h2>
-      <div class="search-box">
-      <span class="icon"><i class="fa fa-search"></i></span>
-      <input type="search" class="search-box" [(ngModel)]='searchA' #ctrl="ngModel"/>
-    </div>
-
-
-      <section layout="row" layout-sm="column" class="center" >
-        <button mat-raised-button color="basic">Results Found: {{numberOfResultsA}}</button>
-      </section>
-
-
-    <!--<div class="searchHistory">-->
-      <!--<div class="list-group">-->
-        <!--<b id="recentSearchesHeader"> Recent Searches</b>-->
-        <!--&lt;!&ndash; Links to detail level &ndash;&gt;-->
-        <!--<div class="list-group-item searchHistoryItem" *ngFor="let x of searchHistoryA"><p> {{x}}<p></p></div>-->
-      <!--</div>-->
-    <!--</div>-->
-
     <div class="results">
 
+
+      <P>{{noResults}}</P>
 
       <!--List amount of results-->
 
 
       <div class="list-group">
-        <div *ngFor="let r of respA" class="list-group-item">
-          <mat-card style="margin-top: 9%">
+        <div *ngFor="let r of resp" class="list-group-item">
           <a href="{{r.id}}" class="questionTitle">{{r.q_title}}</a>
           <!--<b class="questionTitle">{{r.q_title}}</b>-->
 
           <!--<b>Question</b>-->
-          <p #qatextContent id="read-more1">
-            <b> Question: </b> {{r.question_txt}}
-          </p>
-          <!--<div class="read-more-link">-->
-            <!--<a readMore [readMore-length]="130" [readMore-element]="qatextContent">-->
-              <!--<span class="less">Less <i class="fa fa-angle-right" aria-hidden="true"></i></span>-->
-              <!--<span class="more">More <i class="fa fa-angle-right" aria-hidden="true"></i></span>-->
-            <!--</a>-->
-          <!--</div>-->
 
+          <p data-dd-collapse-text="100" class="questionText"><b>Question: </b>{{r.question_txt}}</p>
+          <p class="answerText"><b>Accepted Answer: </b> {{r.accepted_answer_txt}}</p>
 
-          <!--<p data-dd-collapse-text="100" class="questionText"><b>Question: </b>{{r.question_txt}}</p>-->
-          <!--<p class="answerText"><b>Accepted Answer: </b> {{r.accepted_answer_txt}}</p>-->
-
-          <p #aatextContent id="read-more2">
-           <b> Answer: </b> {{r.accepted_answer_txt}}
-          </p>
-          <!--<div class="read-more-link">-->
-            <!--<a readMore [readMore-length]="130" [readMore-element]="aatextContent">-->
-              <!--<span class="less">Less <i class="fa fa-angle-right" aria-hidden="true"></i></span>-->
-              <!--<span class="more">More <i class="fa fa-angle-right" aria-hidden="true"></i></span>-->
-            <!--</a>-->
-          <!--</div>-->
-
-          </mat-card>
         </div>
       </div>
     </div>
-    </mat-card>
-  </div>
+</mat-card>
 
 <div id="rightcolumn">
-  <mat-card style="margin-right: 1vw; margin-left: 1vw; margin-top: 9%; width: 43vw; min-height: 40vh; background-color: #f9f9f9;">
-    <h2 style="text-align: center;">B</h2>
-    <div class="search-box">
-    <span class="icon"><i class="fa fa-search"></i></span>
-    <input type="search" class="search-box" [(ngModel)]='searchB' #ctrl="ngModel"/>
+<div class="voice-searchIcon-container">
+<div class="start-recording" [ngStyle]="{ 'background-color': getRecordColour(), 'border-radius' : getRecordBtnRadius() }" (click)="recordPress()"><div class="mc"></div></div>
+<!--</<div class="start-recording" (click)="recordPress()"><div class="mc"></div></div>div>-->
+</div>
+
+  <p>Results Found: {{numberOfResults}}</p>
+
+  <div class="searchHistory">
+  <div class="list-group">
+    <b id="recentSearchesHeader"> Recent Searches</b>
+    <!-- Links to detail level -->
+    <div class="list-group-item searchHistoryItem" *ngFor="let x of searchHistory"><p> {{x}}<p></p></div>
   </div>
-
-    <section layout="row" layout-sm="column" class="center" >
-      <button mat-raised-button color="basic">Results Found: {{numberOfResultsB}}</button>
-    </section>
-
-  <!--<div class="searchHistory">-->
-  <!--<div class="list-group">-->
-    <!--<b id="recentSearchesHeader"> Recent Searches</b>-->
-    <!--&lt;!&ndash; Links to detail level &ndash;&gt;-->
-    <!--<div class="list-group-item searchHistoryItem" *ngFor="let x of searchHistoryB"><p> {{x}}<p></p></div>-->
-  <!--</div>-->
-<!--</div>-->
-
-    <div class="results">
-
-
-      <!--List amount of results-->
-
-
-      <div class="list-group">
-        <div *ngFor="let r of respB" class="list-group-item">
-
-          <mat-card style="margin-top: 9%">
-          <a href="{{r.id}}" class="questionTitle">{{r.q_title}}</a>
-          <!--<b class="questionTitle">{{r.q_title}}</b>-->
-
-            <!--<b>Question</b>-->
-            <p #qbtextContent id="read-more3">
-              <b> Question: </b> {{r.question_txt}}
-            </p>
-            <!--<div class="read-more-link">-->
-              <!--<a readMore [readMore-length]="130" [readMore-element]="qbtextContent">-->
-                <!--<span class="less">Less <i class="fa fa-angle-right" aria-hidden="true"></i></span>-->
-                <!--<span class="more">More <i class="fa fa-angle-right" aria-hidden="true"></i></span>-->
-              <!--</a>-->
-            <!--</div>-->
-
-
-
-            <p #abtextContent id="read-more4">
-              <b> Answer: </b> {{r.accepted_answer_txt}}
-            </p>
-            <!--<div class="read-more-link">-->
-              <!--<a readMore [readMore-length]="130" [readMore-element]="abtextContent">-->
-                <!--<span class="less">Less <i class="fa fa-angle-right" aria-hidden="true"></i></span>-->
-                <!--<span class="more">More <i class="fa fa-angle-right" aria-hidden="true"></i></span>-->
-              <!--</a>-->
-            <!--</div>-->
-
-          </mat-card>
-        </div>
-      </div>
-    </div>
-
-  </mat-card>
 </div>
-
-
+</div>
 
 
 
@@ -230,5 +68,3 @@
 
 </div>
 </div>
-
-</body>
