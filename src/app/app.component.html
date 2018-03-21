@@ -1,26 +1,39 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.6.4/angular-sanitize.min.js"></script>
 <script src="/bower_components/angular-read-more/readmore.min.js"></script>
 <script src="./node_modules/recordrtc/RecordRTC.js"></script>
-<link href="https://unpkg.com/@angular/material/core/theming/prebuilt/indigo-pink.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-<mat-toolbar class="toolbar" >
-  <span>Fusion Voice Search Demo</span>
+
+<mat-toolbar   class="toolbar" style="opacity: 100" >
+  <span class="toolSpan">Fusion Voice Search Demo</span>
 </mat-toolbar>
 
+<div class="search-toolbar" >
+  <div class="search-box">
+
+    <input type="search" id="search" [(ngModel)]="search" (keyup.enter)="onKeyDown(search)  " />
+
+  </div>
+
+  <div class="voice-searchIcon-container">
+    <div class="start-recording" [ngStyle]="{ 'background-color': getRecordColour(), 'border-radius' : getRecordBtnRadius() }" (click)="recordPress()"><div class="mc"></div></div>
+    <!--<mat-icon style="color: #0b7aff; float: right;">volume_up</mat-icon>-->
+  </div>
+
+
+
+</div>
+
+
+
+
+<!-- Main Content -->
 <div class="wrapper">
-
-
 
 <div class="box">
 
   <div id="leftcolumn">
-  <div class="search-box">
-    <span class="icon"><i class="fa fa-search"></i></span>
-    <input type="search" id="search" [(ngModel)]="search" (keyup.enter)="onKeyUp(search)  " />
-  </div>
-
-    <mat-card style="margin-left: 1vw; margin-top: 9%; width: 43vw; min-height: 40vh; background-color: #f9f9f9;">
-    <div class="results">
 
 
       <P>{{noResults}}</P>
@@ -28,43 +41,72 @@
       <!--List amount of results-->
 
 
+
       <div class="list-group">
-        <div *ngFor="let r of resp" class="list-group-item">
+        <div *ngFor="let r of resp; let i = index" class="list-group-item">
+          <mat-card>
+            <button mat-mini-fab color="primary" *ngIf="i>0" class="result-count">{{i+1}}</button>
+            <button mat-icon-button color="warn" *ngIf="i==0" class="favourite">
+              <mat-icon aria-label="Example icon-button with a heart icon">favorite</mat-icon>
+            </button>
+
+            <div *ngIf="i==0;">{{setBestMatchedResult(r.q_title)}} {{dictateQuestion()}}</div>
+
+
+
+            <mat-card-header style="width:90%;">
+              <mat-card-title>
           <a href="{{r.id}}" class="questionTitle">{{r.q_title}}</a>
-          <!--<b class="questionTitle">{{r.q_title}}</b>-->
+              </mat-card-title>
+            </mat-card-header>
+
+
+
 
           <!--<b>Question</b>-->
 
-          <p data-dd-collapse-text="100" class="questionText"><b>Question: </b>{{r.question_txt}}</p>
-          <p class="answerText"><b>Accepted Answer: </b> {{r.accepted_answer_txt}}</p>
+          <mat-card-content>
+          <p ><b>Question: </b>{{r.question_txt}}</p>
+          </mat-card-content>
 
-        </div>
+            <mat-card-content>
+          <p ><b>Accepted Answer: </b> {{r.accepted_answer_txt}}</p>
+            </mat-card-content>
+
+          </mat-card>
+
+
+  </div>
       </div>
-    </div>
-</mat-card>
+  </div>
+
 
 <div id="rightcolumn">
-<div class="voice-searchIcon-container">
-<div class="start-recording" [ngStyle]="{ 'background-color': getRecordColour(), 'border-radius' : getRecordBtnRadius() }" (click)="recordPress()"><div class="mc"></div></div>
-<!--</<div class="start-recording" (click)="recordPress()"><div class="mc"></div></div>div>-->
-</div>
 
-  <p>Results Found: {{numberOfResults}}</p>
 
   <div class="searchHistory">
+    <mat-card>
+      <div class="results-found">
+        <button mat-raised-button style="background-color: white">
+        <p>Results Found: {{numberOfResults}}</p>
+        </button>
+      </div>
   <div class="list-group">
     <b id="recentSearchesHeader"> Recent Searches</b>
     <!-- Links to detail level -->
     <div class="list-group-item searchHistoryItem" *ngFor="let x of searchHistory"><p> {{x}}<p></p></div>
   </div>
+    </mat-card>
 </div>
+
+
+
+
+
+
+
+
+</div>
+      </div>
 </div>
 
-
-
-
-
-
-
-</div>
-</div>

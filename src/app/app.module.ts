@@ -30,6 +30,7 @@ import {
     MatToolbarModule,
     MatButtonModule,
     MatCardModule,
+    MatIconModule
 
     // Recorder,
     // RecordRTC

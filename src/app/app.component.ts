@@ -4,6 +4,8 @@ import * as RecordRTC from '../assets/recordrtc';
 // import StereoAudioRecorder = require('recordrtc/dev/StereoAudioRecorder.js');
 // import Recorder = require('recorder-js');
 
+
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -16,21 +18,16 @@ export class AppComponent {
   d: any;
   // API A
   nameOfApiA: String;
-  respA: any;
+  resp: any;
   public googleResponse: String;
   public googleDocuments: any;
+  public bestMatchedResults: String;
+  public lastDictatedQuery: String;
 
-  public searchHistoryA = [];
-  numberOfResultsA: number;
-  public searchA: String;
-  // API B
-  nameOfApiB: String;
-  respB: any;
-  public ibmResponse: String;
-  public ibmDocuments: any;
-  public searchHistoryB = [];
-  numberOfResultsB: number;
-  public searchB: String;
+  public searchHistory = [];
+  public numberOfResults: number;
+  public search: String;
+
   noResults: string;
   recordStatus: boolean;
   votingStatus: boolean;
@@ -40,8 +37,7 @@ export class AppComponent {
   recordedBlob: any;
   apis = ['Google', 'IBM'];
   rand: string;
-  panelOpenState: boolean = false;
-  serverAddress = document.location.protocol + '//' + document.location.hostname; //Get Server IP Address
+  serverAddress = document.location.protocol + '//' + document.location.hostname; // Get Server IP Address
   // Style button dependent on status
   recordBtnColour: string;
   recordBtnRadius: any;
@@ -60,17 +56,35 @@ export class AppComponent {
   ngAfterViewInit() {
     this.recordStatus = true;
     this.setRecordNotActive();
-    this.numberOfResultsA = 0;
-    this.numberOfResultsB = 0;
-    this.votingStatus = true;
-    this.rand = this.randomise();
+    this.numberOfResults = 0;
     console.log('Fusion should be found at: ' + this.url);
+    let msg = new SpeechSynthesisUtterance('Welcome to the Fusion Voice Search Demo');
+    window.speechSynthesis.speak(msg);
+
+    msg = new SpeechSynthesisUtterance('Press the Red record button to capture a voice query, click again to end the capture.');
+    window.speechSynthesis.speak(msg);
+    let voices = window.speechSynthesis.getVoices();
+    console.log(voices);
+
   }
 
+  onKeyDown(searchTerm) {
+    this.addSearchHistory(searchTerm, this.searchHistory);
+        this.http.get(this.url + 'query-pipelines/lucidfind-default/collections/lucidfind/select?q=' + searchTerm +'&wt=json')
+         .subscribe(data => {
+              this.d = data as JSON;
+              if (this.d.hasOwnProperty('response')) {
+                  this.resp = data.response.docs;
+                this.numberOfResults = this.resp.length;
+                }
+              console.log(data);
+              console.log(this.resp);
 
-  randomise() {
-    return this.apis[Math.floor(Math.random() * this.apis.length)];
-  }
+              });
+      }
+
+
+
 
   recordPress(this) {
 
@@ -130,7 +144,7 @@ export class AppComponent {
 
 
   errorCallback() {
-    //handle error here
+    // handle error here
   }
 
 
@@ -169,13 +183,10 @@ export class AppComponent {
   stopRecording() {
     const recordRTC = this.recordRTC;
     recordRTC.stopRecording(this.processVideo.bind(this));
-
-    this.rand = this.randomise();
-
   }
 
 
-  uploadToServerA(blob) {
+  uploadToFusion(blob) {
     const uploadLocation = this.url + 'query-pipelines/lucidfind-voicesearch/collections/lucidfind/select?wt=json';
     const body = {'data': blob};
     const header = {headers: {
@@ -188,66 +199,38 @@ export class AppComponent {
         console.log('d' + this.d);
         if (d.hasOwnProperty('response')) {
           console.log('Response Found');
-          this.googleDocuments = d.response.docs;
+          this.resp = d.response.docs;
+          this.numberOfResults = this.resp.length;
         } else {
           console.log('No Response found');
         }
+
 
         if (d.hasOwnProperty('responseHeader')) {
           this.googleResponse = d.responseHeader.params.q;
-          console.log('FUSION ' + this.googleResponse);
+          this.search = this.googleResponse;
+          this.addSearchHistory(this.googleResponse, this.searchHistory);
+          console.log('FUSION ' + this.resp);
         } else {
-          //No response from API
+          // No response from API
         }
-
-
-
-        console.log(data);
-        console.log(this.respA);
 
         if (this.googleDocuments.length === 0) {
           this.noResults = 'Could not find any results, try reforming your query.';
-        }
-
-        this.setAandB();
-      });
-  }
-
-  uploadToServerB(blob) {
-    const uploadLocation = this.url + 'query-pipelines/ibm/collections/lucidfind/select?wt=json';
-    const body = {'data': blob};
-    const header = {headers: {
-        'Content-Type': 'audio/wav'
-      }};
-    this.http.post(uploadLocation, blob, {headers: {'Content-Type': 'audio/wav'}} )
-      .subscribe(data => {
-        this.d = data as JSON;
-        const d = this.d;
-        console.log('d' + this.d);
-
-        if (d.hasOwnProperty('responseHeader')) {
-          this.ibmResponse = d.responseHeader.params.q;
-          console.log('FUSION ' + this.ibmResponse);
         } else {
-          //No response from API
-        }
 
-        if (d.hasOwnProperty('response')) {
-          console.log('Response Found');
-          this.ibmDocuments = d.response.docs;
-        } else {
-          console.log('No Response found');
         }
 
         console.log(data);
+        console.log(this.resp);
 
-        if (this.ibmDocuments.length === 0) {
-          this.noResults = 'Could not find any results, try reforming your query.';
-        }
 
-        this.setAandB();
+
+
       });
   }
+
+
 
   processVideo(audioVideoWebMURL) {
     // let audio: HTMLVideoElement = this.audio.nativeElement;
@@ -255,8 +238,7 @@ export class AppComponent {
     // audio.src = audioVideoWebMURL;
     // this.toggleControls();
      this.recordedBlob = recordRTC.getBlob();
-     this.uploadToServerA(recordRTC.blob);
-    this.uploadToServerB(recordRTC.blob);
+     this.uploadToFusion(recordRTC.blob);
 
     // recordRTC.getDataURL(function (dataURL) { window.open(dataURL);
     // console.log(dataURL);
@@ -300,75 +282,36 @@ export class AppComponent {
    searchHistory.push(searchTerm);
   }
 
-  voteButtonClicked(value) {
-    let api;
-    if (value === 'A') {
-      api = this.nameOfApiA;
-    } else if (value === 'Both the Same') {
-      api = 'Both the Same';
-    } else if (value === 'B') {
-      api = this.nameOfApiB;
-    }
+  textToSpeech(text: string) {
+    var msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'en-GB';
+    window.speechSynthesis.speak(msg);
 
-    this.votingStatus = true; // Disable Voting
-    this.postToGoogleSheet(api, this.googleResponse, this.ibmResponse);
-
+    msg.onend = function(event) {
+      window.speechSynthesis.cancel();
+    };
   }
 
-  postToGoogleSheet(winner, googleResult, ibmResult) {
-    const uploadLocation = 'https://script.google.com/macros/s/AKfycbxzfY3bMlpPqFxj4RSHr1LLFO2m0ps9J_y_TazqboFPbkDDnF8/exec?Winner=' + winner + '&Google=' + googleResult + '&Ibm=' + ibmResult ;
 
-    //Figure out which API won
-    if (winner === 'A') {
-      winner = this.nameOfApiA;
-    } else if (winner === 'B') {
-      winner = this.nameOfApiB;
-    }
 
-    this.http.post(uploadLocation, {})
-      .subscribe(data => {
-        this.d = data as JSON;
-      });
+  setBestMatchedResult(result) {
+    this.bestMatchedResults = result;
   }
-
-  setAandB() {
+  dictateQuestion() {
     let app = this;
-    const random = this.rand;
-    this.nameOfApiA = random;
 
+    if (app.bestMatchedResults !== app.lastDictatedQuery) {
+      let text = 'I found ' + app.numberOfResults + 'results for your query. The best question was:' + app.bestMatchedResults;
+      let msg = new SpeechSynthesisUtterance(text);
+      msg.lang = 'en-GB';
+      window.speechSynthesis.speak(msg);
 
-    if (random === 'Google') {
-      app.searchA = this.googleResponse;
-      app.respA = this.googleDocuments;
-      app.numberOfResultsA = this.googleDocuments.length;
-      app.searchHistoryA.push(this.googleResponse);
-      app.nameOfApiB = 'IBM';
-      app.searchB = this.ibmResponse;
-      app.respB = this.ibmDocuments;
-      app.respB = app.respB.accepted_answer_txt.forEach(element => {
-
-          var n = element.indexOf('share|improve');
-          console.log('Found it: ' + n);
-          element = element.substring(0, n);
-      });
-      app.numberOfResultsB = this.ibmDocuments.length;
-      app.searchHistoryB.push(this.ibmResponse);
-
-    } else if (random === 'IBM') {
-      app.nameOfApiB = 'Google';
-      app.searchB = this.googleResponse;
-      app.respB = this.googleDocuments;
-      app.numberOfResultsB = this.googleDocuments.length;
-      app.searchHistoryB.push(this.googleResponse);
-
-      app.searchA = this.ibmResponse;
-      app.respA = this.ibmDocuments;
-      app.numberOfResultsA = this.ibmDocuments.length;
-      app.searchHistoryA.push(this.ibmResponse);
+      msg.onend = function (event) {
+        window.speechSynthesis.cancel();
+        app.lastDictatedQuery = app.bestMatchedResults;
+      };
     }
   }
-
-
 
 
 }
