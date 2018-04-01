@@ -21,6 +21,7 @@
       "prefix": "app",
       "styles": [
         "styles.css"
+
       ],
       "scripts": ["./assets/adapter-latest.js", "./assets/MediaStreamRecorder.js"],
       "environmentSource": "environments/environment.ts",

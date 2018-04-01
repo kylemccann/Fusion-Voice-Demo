@@ -58,14 +58,6 @@ export class AppComponent {
     this.setRecordNotActive();
     this.numberOfResults = 0;
     console.log('Fusion should be found at: ' + this.url);
-    let msg = new SpeechSynthesisUtterance('Welcome to the Fusion Voice Search Demo');
-    window.speechSynthesis.speak(msg);
-
-    msg = new SpeechSynthesisUtterance('Press the Red record button to capture a voice query, click again to end the capture.');
-    window.speechSynthesis.speak(msg);
-    let voices = window.speechSynthesis.getVoices();
-    console.log(voices);
-
   }
 
   onKeyDown(searchTerm) {
@@ -196,7 +188,6 @@ export class AppComponent {
       .subscribe(data => {
         this.d = data as JSON;
         const d = this.d;
-        console.log('d' + this.d);
         if (d.hasOwnProperty('response')) {
           console.log('Response Found');
           this.resp = d.response.docs;
@@ -205,27 +196,18 @@ export class AppComponent {
           console.log('No Response found');
         }
 
-
+        // If response contains response header
         if (d.hasOwnProperty('responseHeader')) {
-          this.googleResponse = d.responseHeader.params.q;
-          this.search = this.googleResponse;
+          this.googleResponse = d.responseHeader.params.q; // Get query from header.
+          this.search = this.googleResponse; // display transcription in search bar
           this.addSearchHistory(this.googleResponse, this.searchHistory);
-          console.log('FUSION ' + this.resp);
         } else {
-          // No response from API
+          //No response from API
         }
 
         if (this.googleDocuments.length === 0) {
           this.noResults = 'Could not find any results, try reforming your query.';
-        } else {
-
         }
-
-        console.log(data);
-        console.log(this.resp);
-
-
-
 
       });
   }
@@ -282,36 +264,6 @@ export class AppComponent {
    searchHistory.push(searchTerm);
   }
 
-  textToSpeech(text: string) {
-    var msg = new SpeechSynthesisUtterance(text);
-    msg.lang = 'en-GB';
-    window.speechSynthesis.speak(msg);
-
-    msg.onend = function(event) {
-      window.speechSynthesis.cancel();
-    };
-  }
-
-
-
-  setBestMatchedResult(result) {
-    this.bestMatchedResults = result;
-  }
-  dictateQuestion() {
-    let app = this;
-
-    if (app.bestMatchedResults !== app.lastDictatedQuery) {
-      let text = 'I found ' + app.numberOfResults + 'results for your query. The best question was:' + app.bestMatchedResults;
-      let msg = new SpeechSynthesisUtterance(text);
-      msg.lang = 'en-GB';
-      window.speechSynthesis.speak(msg);
-
-      msg.onend = function (event) {
-        window.speechSynthesis.cancel();
-        app.lastDictatedQuery = app.bestMatchedResults;
-      };
-    }
-  }
 
 
 }

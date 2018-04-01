@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 
-<mat-toolbar   class="toolbar" style="opacity: 100" >
+<mat-toolbar   class="toolbar">
   <span class="toolSpan">Fusion Voice Search Demo</span>
 </mat-toolbar>
 
@@ -38,11 +38,8 @@
 
       <P>{{noResults}}</P>
 
-      <!--List amount of results-->
-
-
-
-      <div class="list-group">
+      <!--Iterate through each result-->
+      <div class="list-group" >
         <div *ngFor="let r of resp; let i = index" class="list-group-item">
           <mat-card>
             <button mat-mini-fab color="primary" *ngIf="i>0" class="result-count">{{i+1}}</button>
@@ -50,28 +47,41 @@
               <mat-icon aria-label="Example icon-button with a heart icon">favorite</mat-icon>
             </button>
 
-            <div *ngIf="i==0;">{{setBestMatchedResult(r.q_title)}} {{dictateQuestion()}}</div>
-
-
-
-            <mat-card-header style="width:90%;">
-              <mat-card-title>
-          <a href="{{r.id}}" class="questionTitle">{{r.q_title}}</a>
+            <!--Question Title -->
+            <mat-card-header style="width:90%; padding: 0; margin: 0;">
+              <mat-card-title style="padding: 0; margin: 0;">
+                <a class="questionTitle" href="{{r.id}}">{{r.q_title}} </a>
               </mat-card-title>
+              <mat-card-subtitle style="padding: 0; margin: 0;"><a href="{{r.id}}" class="questionSubTitle">{{r.id}}</a></mat-card-subtitle>
             </mat-card-header>
 
 
 
+          <!--<b>Question Text</b>-->
+              <p #textContent style="padding: 0; margin: 0; padding-top: 1%; padding-left: 0.5%; max-width: 90%;" id="read-more{{i}}">
+                <b>Question: </b> {{r.question_txt}}
+              </p>
 
-          <!--<b>Question</b>-->
+            <div class="read-more-link" style="padding: 0; margin: 0; padding-left: 0.5%">
+              <a readMore [readMore-length]="300" [readMore-element]="textContent">
+                <a class="less">Less <i  aria-hidden="true"></i></a>
+                <a class="more">More <i  aria-hidden="true"></i></a>
+              </a>
+            </div>
 
-          <mat-card-content>
-          <p ><b>Question: </b>{{r.question_txt}}</p>
-          </mat-card-content>
 
-            <mat-card-content>
-          <p ><b>Accepted Answer: </b> {{r.accepted_answer_txt}}</p>
-            </mat-card-content>
+              <!--Accepted Answer -->
+              <p #textContentA style="padding: 0; margin: 0; padding-top: 1%; padding-left: 0.5%; max-width: 90%" id="read-morea{{i}}">
+              <b>Accepted Answer: </b> {{r.accepted_answer_txt}}
+              </p>
+
+              <div class="read-morea-link" style="padding: 0; margin: 0; padding-left: 0.5%">
+                <a readMore [readMore-length]="250" [readMore-element]="textContentA">
+                  <a class="less">Less <i  aria-hidden="true"></i></a>
+                  <a class="more">More <i  aria-hidden="true"></i></a>
+                </a>
+              </div>
+
 
           </mat-card>
 
@@ -86,14 +96,9 @@
 
   <div class="searchHistory">
     <mat-card>
-      <div class="results-found">
-        <button mat-raised-button style="background-color: white">
-        <p>Results Found: {{numberOfResults}}</p>
-        </button>
-      </div>
   <div class="list-group">
     <b id="recentSearchesHeader"> Recent Searches</b>
-    <!-- Links to detail level -->
+    <!-- Recent Searches -->
     <div class="list-group-item searchHistoryItem" *ngFor="let x of searchHistory"><p> {{x}}<p></p></div>
   </div>
     </mat-card>

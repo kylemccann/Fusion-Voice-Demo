@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import {HttpClientModule} from '@angular/common/http';
 import {FormsModule} from '@angular/forms';
+import { ReadMoreDirective } from '../assets/ngx-read-more';
 import {
   MatButtonModule,
   MatMenuModule,
@@ -21,7 +22,9 @@ import {
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    ReadMoreDirective
+
   ],
   imports: [
     BrowserModule,
@@ -31,7 +34,6 @@ import {
     MatButtonModule,
     MatCardModule,
     MatIconModule
-
     // Recorder,
     // RecordRTC
   ],
